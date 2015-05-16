@@ -1318,6 +1318,7 @@ pinentry_loop2 (int infd, int outfd)
 #if 0
   assuan_set_log_stream (ctx, stderr);
 #endif
+  assuan_register_reset_notify (ctx, pinentry_reset);
   pinentry_reset (NULL);
 
   for (;;)
