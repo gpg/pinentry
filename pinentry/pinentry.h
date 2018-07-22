@@ -28,6 +28,8 @@ extern "C" {
 #endif
 #endif
 
+#undef ttytype
+
 typedef enum {
   PINENTRY_COLOR_NONE, PINENTRY_COLOR_DEFAULT,
   PINENTRY_COLOR_BLACK, PINENTRY_COLOR_RED,
