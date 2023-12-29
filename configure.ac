@@ -428,32 +428,31 @@ fi
 AM_CONDITIONAL(BUILD_PINENTRY_EFL, test "$pinentry_efl" = "yes")
 
 dnl
-dnl Check for GTK+-2 / GNOME3 pinentry programs.
+dnl Check for GTK / GNOME3 pinentry programs.
 dnl
-AC_ARG_ENABLE(pinentry-gtk2,
-            AS_HELP_STRING([--enable-pinentry-gtk2],[build GTK+-2 pinentry]),
-            pinentry_gtk_2=$enableval, pinentry_gtk_2=maybe)
+AC_ARG_ENABLE(pinentry-gtk,
+            AS_HELP_STRING([--enable-pinentry-gtk],[build GTK pinentry]),
+            pinentry_gtk=$enableval, pinentry_gtk=maybe)
 
 AC_ARG_ENABLE(pinentry-gnome3,
             AS_HELP_STRING([--enable-pinentry-gnome3],[build GNOME 3 pinentry]),
             pinentry_gnome_3=$enableval, pinentry_gnome_3=maybe)
 
-dnl check if the module gtk+-2.0 exists
-if test "$pinentry_gtk_2" != "no"; then
+dnl check if the module GTK exists
+if test "$pinentry_gtk" != "no"; then
 	PKG_CHECK_MODULES(
-		GTK2,
-		[gtk+-2.0 >= 2.12.0],
+		GTK,
+		[gtk4 >= 4.0.0],
 		[
-			test "$pinentry_gtk_2" != "no" && pinentry_gtk_2=yes
-			test "$pinentry_gnome_3" != "no" && pinentry_gnome_3=yes
+			pinentry_gtk=yes
 		],
 		[
-			AC_MSG_WARN([pkg-config could not find the module gtk+-2.0])
-			pinentry_gtk_2=no
+			AC_MSG_WARN([pkg-config could not find the module GTK])
+			pinentry_gtk=no
 		]
 	)
 fi
-AM_CONDITIONAL(BUILD_PINENTRY_GTK_2, test "$pinentry_gtk_2" = "yes")
+AM_CONDITIONAL(BUILD_PINENTRY_GTK, test "$pinentry_gtk" = "yes")
 
 if test "$pinentry_gnome_3" != "no"; then
 	PKG_CHECK_MODULES(
@@ -710,8 +709,8 @@ AM_CONDITIONAL(BUILD_PINENTRY_FLTK, test "$pinentry_fltk" = "yes")
 # Please change the order only after verifying that the preferred
 # pinentry really is better (more feature-complete and more secure).
 
-if test "$pinentry_gtk_2" = "yes"; then
-  PINENTRY_DEFAULT=pinentry-gtk-2
+if test "$pinentry_gtk" = "yes"; then
+  PINENTRY_DEFAULT=pinentry-gtk
 else
   if test "$pinentry_qt5" = "yes"; then
     PINENTRY_DEFAULT=pinentry-qt
@@ -826,7 +825,7 @@ curses/Makefile
 tty/Makefile
 efl/Makefile
 emacs/Makefile
-gtk+-2/Makefile
+gtk-4/Makefile
 gnome3/Makefile
 qt/Makefile
 qt/icons/Makefile
@@ -851,7 +850,7 @@ AC_MSG_NOTICE([
 	TTY Pinentry .....: $pinentry_tty
 	Emacs Pinentry ...: $pinentry_emacs
 	EFL Pinentry .....: $pinentry_efl
-	GTK+-2 Pinentry ..: $pinentry_gtk_2
+	GTK Pinentry .....: $pinentry_gtk
 	GNOME 3 Pinentry .: $pinentry_gnome_3
 	Qt5 Pinentry .....: $pinentry_qt5
 	Qt4 Pinentry .....: $pinentry_qt4
