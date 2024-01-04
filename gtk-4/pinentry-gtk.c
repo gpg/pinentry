@@ -101,12 +101,22 @@ clicked (GtkButton *button, gpointer data)
   pinentry_window_done = 1;
 }
 
+static gboolean
+timeout_cb (gpointer data)
+{
+  (void)data;
+
+  pinentry->result = -1;
+  pinentry_window_done = 1;
+  pinentry->specific_err = gpg_error (GPG_ERR_TIMEOUT);
+  return FALSE;
+}
+
 #define VSPACE 25
 #define HSPACE 20
 
 /* FIXME: title support */
 /* FIXME: Add LIBSECRET support (HAVE_LIBSECRET) to cache password.  */
-/* FIXME: Timeout support */
 /* FIXME: GENPIN support */
 /*
  [ description ]
@@ -125,6 +135,9 @@ gtk_cmd_handler (pinentry_t pe)
   GtkWidget *w, *v, *d, *n, *g, *h;
   GtkWidget *p1, *e1, *q, *p2, *e2;
   GtkWidget *b_cancel, *b_notok, *b_ok;
+  char *title;
+  const char *ok_str = pe->ok ? pe->ok: pe->default_ok;
+  guint timeout_id = 0;
 
   pinentry = pe;
   pinentry_window_done = 0;
@@ -132,7 +145,6 @@ gtk_cmd_handler (pinentry_t pe)
   w = gtk_window_new ();
   g_signal_connect (G_OBJECT (w), "close-request",
 		    G_CALLBACK (close_request), NULL);
-
 
   v = gtk_box_new (GTK_ORIENTATION_VERTICAL, VSPACE);
   gtk_widget_set_margin_top (v, VSPACE);
@@ -192,7 +204,9 @@ gtk_cmd_handler (pinentry_t pe)
   h = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, HSPACE);
   if (!pe->one_button)
     {
-      b_cancel = gtk_button_new_with_label (pe->cancel);
+      const char *cancel_str = pe->cancel ? pe->cancel: pe->default_cancel;
+
+      b_cancel = gtk_button_new_with_label (cancel_str ? cancel_str : "Cancel");
       gtk_box_append (GTK_BOX (h), b_cancel);
       g_signal_connect (G_OBJECT (b_cancel), "clicked", G_CALLBACK (clicked),
                         (gpointer)PINENTRY_ACTION_CANCEL);
@@ -204,13 +218,19 @@ gtk_cmd_handler (pinentry_t pe)
       g_signal_connect (G_OBJECT (b_notok), "clicked", G_CALLBACK (clicked),
                         (gpointer)PINENTRY_ACTION_NOTOK);
     }
-  b_ok = gtk_button_new_with_label (pe->ok);
+  b_ok = gtk_button_new_with_label (ok_str? ok_str : "OK");
   gtk_box_append (GTK_BOX (h), b_ok);
   g_signal_connect (G_OBJECT (b_ok), "clicked", G_CALLBACK (clicked),
                     (gpointer)PINENTRY_ACTION_OK);
 
   gtk_box_append (GTK_BOX (v), h);
 
+  title = pinentry_get_title (pinentry);
+  if (title)
+    {
+      gtk_window_set_title (GTK_WINDOW (w), title);
+      free (title);
+    }
   gtk_window_set_modal (GTK_WINDOW (w), TRUE);
   gtk_window_set_child (GTK_WINDOW (w), v);
   /*
@@ -222,13 +242,7 @@ gtk_cmd_handler (pinentry_t pe)
     key accel (Escape to cancel, etc.???)
    */
   /*
-    ->ok
     ->error
-    ->prompt
-
-    ->cancel
-    ->timeout
-    ->one_button
     ->confirm
    */
   /*
@@ -253,10 +267,16 @@ gtk_cmd_handler (pinentry_t pe)
       gtk_widget_grab_focus (b_ok);
     }
 
+  if (pe->timeout > 0)
+    timeout_id = g_timeout_add (pe->timeout * 1000, timeout_cb, NULL);
+
   while (!pinentry_window_done)
     g_main_context_iteration (NULL, TRUE);
 
   gtk_window_destroy (GTK_WINDOW (w));
+
+  if (pe->timeout > 0 && gpg_err_code (pe->specific_err) != GPG_ERR_TIMEOUT)
+    g_source_remove (timeout_id);
 
   pinentry = NULL;
   return pe->result;
