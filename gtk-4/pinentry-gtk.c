@@ -206,19 +206,20 @@ gtk_cmd_handler (pinentry_t pe)
     {
       const char *cancel_str = pe->cancel ? pe->cancel: pe->default_cancel;
 
-      b_cancel = gtk_button_new_with_label (cancel_str ? cancel_str : "Cancel");
+      cancel_str = cancel_str ? cancel_str : "Cancel";
+      b_cancel = gtk_button_new_with_mnemonic (cancel_str);
       gtk_box_append (GTK_BOX (h), b_cancel);
       g_signal_connect (G_OBJECT (b_cancel), "clicked", G_CALLBACK (clicked),
                         (gpointer)PINENTRY_ACTION_CANCEL);
     }
   if (pe->notok)
     {
-      b_notok = gtk_button_new_with_label (pe->notok);
+      b_notok = gtk_button_new_with_mnemonic (pe->notok);
       gtk_box_append (GTK_BOX (h), b_notok);
       g_signal_connect (G_OBJECT (b_notok), "clicked", G_CALLBACK (clicked),
                         (gpointer)PINENTRY_ACTION_NOTOK);
     }
-  b_ok = gtk_button_new_with_label (ok_str? ok_str : "OK");
+  b_ok = gtk_button_new_with_mnemonic (ok_str? ok_str : "OK");
   gtk_box_append (GTK_BOX (h), b_ok);
   g_signal_connect (G_OBJECT (b_ok), "clicked", G_CALLBACK (clicked),
                     (gpointer)PINENTRY_ACTION_OK);
