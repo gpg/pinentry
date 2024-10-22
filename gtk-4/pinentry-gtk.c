@@ -66,18 +66,10 @@ close_request (GtkWindow *w, gpointer data)
 static void
 enter_callback (GtkPasswordEntry *e, gpointer data)
 {
-  const char *s;
-  int len;
-
   (void)e;
   (void)data;
-  s = gtk_editable_get_text (GTK_EDITABLE (e));
-  len = strlen (s);
-  pinentry_setbufferlen (pinentry, len + 1);
-  if (pinentry->pin)
-    strcpy (pinentry->pin, s);
-  pinentry->result = len;
 
+  pinentry->result = 1;
   pinentry->canceled = 0;
   pinentry_window_done = 1;
 }
@@ -141,6 +133,7 @@ gtk_cmd_handler (pinentry_t pe)
 
   pinentry = pe;
   pinentry_window_done = 0;
+  e1 = NULL;
 
   w = gtk_window_new ();
   g_signal_connect (G_OBJECT (w), "close-request",
@@ -273,6 +266,19 @@ gtk_cmd_handler (pinentry_t pe)
 
   while (!pinentry_window_done)
     g_main_context_iteration (NULL, TRUE);
+
+  if (e1)
+    {
+      const char *s;
+      int len;
+
+      s = gtk_editable_get_text (GTK_EDITABLE (e1));
+      len = strlen (s);
+      pinentry_setbufferlen (pinentry, len + 1);
+      if (pinentry->pin)
+        strcpy (pinentry->pin, s);
+      pinentry->result = len;
+    }
 
   gtk_window_destroy (GTK_WINDOW (w));
 
