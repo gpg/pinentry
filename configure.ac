@@ -353,7 +353,6 @@ dnl Check for emacs pinentry program.
 dnl
 AC_ARG_ENABLE(pinentry-emacs,
             AS_HELP_STRING([--enable-pinentry-emacs],[build emacs pinentry]),
-            AC_MSG_WARN([pinentry-emacs is obsolete; Emacs version 26 or later never uses it.])
             pinentry_emacs=$enableval, pinentry_emacs=no)
 AC_ARG_ENABLE(inside-emacs,
             AS_HELP_STRING([--enable-inside-emacs],[include emacs hack]),
@@ -395,6 +394,7 @@ AM_CONDITIONAL(INSIDE_EMACS, test "$inside_emacs" = "yes")
 if test "$pinentry_emacs" = "yes"; then
   AC_DEFINE(PINENTRY_EMACS, 1,
             [The Emacs version of Pinentry is to be build])
+  AC_MSG_WARN([pinentry-emacs is obsolete; Emacs version 26 or later never uses it.])
 fi
 
 
