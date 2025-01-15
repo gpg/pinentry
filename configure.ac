@@ -246,9 +246,6 @@ COMMON_LIBS="$GPG_ERROR_LIBS $COMMON_LIBS"
 AC_DEFINE_UNQUOTED(GPG_ERR_ENABLE_GETTEXT_MACROS, 1,
                    [Under Windows we use the gettext code from libgpg-error])
 
-AC_DEFINE_UNQUOTED(GPG_ERR_ENABLE_ERRNO_MACROS, 1,
-                   [Under WindowsCE we use the strerror replacement from libgpg-error.])
-
 
 dnl Checks for libassuan.
 #
