@@ -115,6 +115,8 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
 
     QPalette redTextPalette;
     redTextPalette.setColor(QPalette::WindowText, Qt::red);
+    const QIcon visibilityIcon = QIcon(QLatin1String(":/icons/visibility.svg"));
+    const QIcon hideIcon = QIcon(QLatin1String(":/icons/hint.svg"));
 
     auto *const mainLayout = new QVBoxLayout{this};
 
@@ -166,31 +168,19 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
         _prompt->setBuddy(_edit);
         l->addWidget(_edit, 1);
 
-        if (!repeatString.isNull()) {
-            mGenerateButton = new QPushButton{this};
-            mGenerateButton->setIcon(QIcon(QLatin1String(":/icons/password-generate")));
-            mGenerateButton->setVisible(false);
-            l->addWidget(mGenerateButton);
+        if (!visibilityIcon.isNull() && !hideIcon.isNull()) {
+            mShowHideButton = new QPushButton{this};
+            mShowHideButton->setIcon(visibilityIcon);
+            mShowHideButton->setToolTip(mVisibilityTT);
+            l->addWidget(mShowHideButton);
         }
         grid->addLayout(l, row, 2);
     }
 
-    /* Set up the show password action */
-    const QIcon visibilityIcon = QIcon(QLatin1String(":/icons/visibility.svg"));
-    const QIcon hideIcon = QIcon(QLatin1String(":/icons/hint.svg"));
-#if QT_VERSION >= 0x050200
-    if (!visibilityIcon.isNull() && !hideIcon.isNull()) {
-        mVisiActionEdit = _edit->addAction(visibilityIcon, QLineEdit::TrailingPosition);
-        mVisiActionEdit->setVisible(false);
-        mVisiActionEdit->setToolTip(mVisibilityTT);
-    } else
-#endif
-    {
-        if (!mVisibilityTT.isNull()) {
-            row++;
-            mVisiCB = new QCheckBox{mVisibilityTT, this};
-            grid->addWidget(mVisiCB, row, 1, 1, 2, Qt::AlignLeft);
-        }
+    if (!mShowHideButton && !mVisibilityTT.isNull()) {
+        row++;
+        mVisiCB = new QCheckBox{mVisibilityTT, this};
+        grid->addWidget(mVisiCB, row, 1, 1, 2, Qt::AlignLeft);
     }
 
     row++;
@@ -218,11 +208,20 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
         repeatLabel->setText(repeatString);
         grid->addWidget(repeatLabel, row, 1);
 
+        const auto l = new QHBoxLayout;
         mRepeat = new PinLineEdit(this);
         mRepeat->setMaxLength(256);
         mRepeat->setEchoMode(QLineEdit::Password);
         repeatLabel->setBuddy(mRepeat);
-        grid->addWidget(mRepeat, row, 2);
+        l->addWidget(mRepeat, 1);
+
+        if (!repeatString.isNull()) {
+            mGenerateButton = new QPushButton{this};
+            mGenerateButton->setIcon(QIcon(QLatin1String(":/icons/password-generate")));
+            mGenerateButton->setVisible(false);
+            l->addWidget(mGenerateButton);
+        }
+        grid->addLayout(l, row, 2);
 
         row++;
         mRepeatError = new QLabel{this};
@@ -297,8 +296,8 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
         connect(mGenerateButton, &QPushButton::clicked,
                 this, &PinEntryDialog::generatePin);
     }
-    if (mVisiActionEdit) {
-        connect(mVisiActionEdit, &QAction::triggered,
+    if (mShowHideButton) {
+        connect(mShowHideButton, &QPushButton::clicked,
                 this, &PinEntryDialog::toggleVisibility);
     }
     if (mVisiCB) {
@@ -599,18 +598,6 @@ void PinEntryDialog::textChanged(const QString &text)
     Q_UNUSED(text);
 
     cancelTimeout();
-
-    if (mVisiActionEdit && sender() == _edit) {
-        mVisiActionEdit->setVisible(!_edit->pin().isEmpty());
-    }
-    if (mGenerateButton) {
-        mGenerateButton->setVisible(
-            _edit->pin().isEmpty()
-#ifndef QT_NO_ACCESSIBILITY
-            && !mGenerateButton->accessibleName().isEmpty()
-#endif
-        );
-    }
 }
 
 void PinEntryDialog::generatePin()
@@ -618,8 +605,8 @@ void PinEntryDialog::generatePin()
     unique_malloced_ptr<char> pin{pinentry_inq_genpin(_pinentry_info)};
     if (pin) {
         if (_edit->echoMode() == QLineEdit::Password) {
-            if (mVisiActionEdit) {
-                mVisiActionEdit->trigger();
+            if (mShowHideButton) {
+                mShowHideButton->click();
             }
             if (mVisiCB) {
                 mVisiCB->setChecked(true);
@@ -638,18 +625,18 @@ void PinEntryDialog::toggleVisibility()
 {
     if (sender() != mVisiCB) {
         if (_edit->echoMode() == QLineEdit::Password) {
-            if (mVisiActionEdit) {
-                mVisiActionEdit->setIcon(QIcon(QLatin1String(":/icons/hint.svg")));
-                mVisiActionEdit->setToolTip(mHideTT);
+            if (mShowHideButton) {
+                mShowHideButton->setIcon(QIcon(QLatin1String(":/icons/hint.svg")));
+                mShowHideButton->setToolTip(mHideTT);
             }
             _edit->setEchoMode(QLineEdit::Normal);
             if (mRepeat) {
                 mRepeat->setEchoMode(QLineEdit::Normal);
             }
         } else {
-            if (mVisiActionEdit) {
-                mVisiActionEdit->setIcon(QIcon(QLatin1String(":/icons/visibility.svg")));
-                mVisiActionEdit->setToolTip(mVisibilityTT);
+            if (mShowHideButton) {
+                mShowHideButton->setIcon(QIcon(QLatin1String(":/icons/visibility.svg")));
+                mShowHideButton->setToolTip(mVisibilityTT);
             }
             _edit->setEchoMode(QLineEdit::Password);
             if (mRepeat) {
