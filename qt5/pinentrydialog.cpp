@@ -171,7 +171,7 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
         const auto l = new QHBoxLayout;
         _edit = new PinLineEdit(this);
         _edit->setMaxLength(256);
-        _edit->setMinimumWidth(_edit->fontMetrics().averageCharWidth()*20 + 48);
+        _edit->setMinimumWidth(_edit->fontMetrics().horizontalAdvance(QLatin1Char('x')) * 35);
         _edit->setEchoMode(QLineEdit::Password);
         _prompt->setBuddy(_edit);
         l->addWidget(_edit, 1);
