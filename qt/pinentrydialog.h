@@ -168,7 +168,7 @@ private:
     QTimer    *_timer = nullptr;
     QString    mVisibilityTT;
     QString    mHideTT;
-    QAction   *mVisiActionEdit = nullptr;
+    QPushButton *mShowHideButton = nullptr;
     QPushButton *mGenerateButton = nullptr;
     QCheckBox *mVisiCB = nullptr;
     QLabel    *mFormattedPassphraseHint = nullptr;
