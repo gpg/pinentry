@@ -113,10 +113,18 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
         setWindowModality(Qt::ApplicationModal);
     }
 
+    // Check for dark scheme to determine the icons
+    // use relative luminance defined in Rec. 709 for HDTV as reasonable estimate of the perceived lightness of the background color
+    const QColor &color = palette().button().color();
+    const double luminance709 = (0.2126 * color.red() + 0.7152 * color.green() + 0.0722 * color.blue()) / 255.;
+    if (luminance709 < 0.5) {
+        mIconSuffix = QStringLiteral("_dark");
+    }
+
     QPalette redTextPalette;
     redTextPalette.setColor(QPalette::WindowText, Qt::red);
-    const QIcon visibilityIcon = QIcon(QLatin1String(":/icons/visibility.svg"));
-    const QIcon hideIcon = QIcon(QLatin1String(":/icons/hint.svg"));
+    const QIcon visibilityIcon = QIcon(QLatin1String(":/icons/visibility") + mIconSuffix);
+    const QIcon hideIcon = QIcon(QLatin1String(":/icons/hint") + mIconSuffix);
 
     auto *const mainLayout = new QVBoxLayout{this};
 
@@ -217,7 +225,7 @@ PinEntryDialog::PinEntryDialog(pinentry_t pe, QWidget *parent, const char *name,
 
         if (!repeatString.isNull()) {
             mGenerateButton = new QPushButton{this};
-            mGenerateButton->setIcon(QIcon(QLatin1String(":/icons/password-generate")));
+            mGenerateButton->setIcon(QIcon(QLatin1String(":/icons/password-generate") + mIconSuffix));
             mGenerateButton->setVisible(false);
             l->addWidget(mGenerateButton);
         }
@@ -626,7 +634,7 @@ void PinEntryDialog::toggleVisibility()
     if (sender() != mVisiCB) {
         if (_edit->echoMode() == QLineEdit::Password) {
             if (mShowHideButton) {
-                mShowHideButton->setIcon(QIcon(QLatin1String(":/icons/hint.svg")));
+                mShowHideButton->setIcon(QIcon(QLatin1String(":/icons/hint") + mIconSuffix));
                 mShowHideButton->setToolTip(mHideTT);
             }
             _edit->setEchoMode(QLineEdit::Normal);
@@ -635,7 +643,7 @@ void PinEntryDialog::toggleVisibility()
             }
         } else {
             if (mShowHideButton) {
-                mShowHideButton->setIcon(QIcon(QLatin1String(":/icons/visibility.svg")));
+                mShowHideButton->setIcon(QIcon(QLatin1String(":/icons/visibility") + mIconSuffix));
                 mShowHideButton->setToolTip(mVisibilityTT);
             }
             _edit->setEchoMode(QLineEdit::Password);
