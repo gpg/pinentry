@@ -1,9 +1,15 @@
-Noteworthy changes in version 1.3.2 (unreleased)
+Noteworthy changes in version 1.3.2 (2025-07-28)
 ------------------------------------------------
 
- * qt: Use light icons in dark mode.  [T7230, T7737]
+ * qt,qt5: Ensure that input field is large enough for generated
+   password.  [rP86ab46ebe9]
+
+ * qt,qt5: Make Show/Hide Password functionality accessible.  [T7736]
+
+ * qt,qt5: Use light icons in dark mode.  [T7230, T7737]
 
  * qt: Make showing/hiding the password accessible.  [T7736]
+
 
 Noteworthy changes in version 1.3.1 (2024-07-03)
 ------------------------------------------------
