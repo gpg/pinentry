@@ -773,7 +773,7 @@ dnl
 dnl Check for FLTK pinentry program.
 dnl
 AC_ARG_ENABLE(pinentry-fltk,
-    AS_HELP_STRING([--enable-pinentry-fltk],[build FLTK 1.3 pinentry]),
+    AS_HELP_STRING([--enable-pinentry-fltk],[build FLTK 1.3/1.4 pinentry]),
            pinentry_fltk=$enableval, pinentry_fltk=maybe)
 
 dnl check for fltk-config
@@ -787,11 +787,11 @@ fi
 
 dnl check for FLTK libraries and set flags
 if test "$pinentry_fltk" != "no"; then
-   AC_MSG_CHECKING([for FLTK 1.3])
+   AC_MSG_CHECKING([for FLTK 1.3/1.4])
    FLTK_VERSION=`${FLTK_CONFIG} --api-version`
-   if test ${FLTK_VERSION} != "1.3" ; then
+   if test ${FLTK_VERSION} != "1.3" -a ${FLTK_VERSION} != "1.4" ; then
        AC_MSG_RESULT([no])
-       AC_MSG_WARN([FLTK 1.3 not found (available $FLTK_VERSION)])
+       AC_MSG_WARN([FLTK 1.3/1.4 not found (available $FLTK_VERSION)])
        pinentry_fltk=no
    else
        AC_MSG_RESULT([yes])
