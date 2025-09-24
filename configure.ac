@@ -282,7 +282,7 @@ dnl
 dnl Checks for curses libraries.  Deal correctly with $pinentry_curses = maybe
 dnl and $fallback_curses = maybe.
 dnl
-if test "$pinentry_curses" != "no" -o "$fallback_curses" != "no"; then
+if test "$pinentry_curses" != "no" || test "$fallback_curses" != "no"; then
   IU_LIB_CURSES
 fi
 if test "$LIBCURSES"; then
@@ -295,7 +295,7 @@ if test "$LIBCURSES"; then
      [The GUI pinentries should fall back to curses if X is not available.])
   fi
 else
-  if test "$pinentry_curses" = "yes" -o "$fallback_curses" = "yes"; then
+  if test "$pinentry_curses" = "yes" || test "$fallback_curses" = "yes"; then
     AC_MSG_ERROR([[
 ***
 *** The curses library is required. The latest version of
@@ -306,7 +306,8 @@ else
   fallback_curses=no
 fi
 AM_CONDITIONAL(BUILD_LIBPINENTRY_CURSES,
-              test "$pinentry_curses" = "yes" -o "$fallback_curses" = "yes")
+               test "$pinentry_curses" = "yes" \
+               || test "$fallback_curses" = "yes")
 AM_CONDITIONAL(BUILD_PINENTRY_CURSES, test "$pinentry_curses" = "yes")
 AM_CONDITIONAL(FALLBACK_CURSES, test "$fallback_curses" = "yes")
 
@@ -334,7 +335,7 @@ dnl
 dnl Additional checks pinentry Curses.
 dnl
 if test "$pinentry_curses" = "yes" \
-        -o "$fallback_curses" = "yes" ; then
+        || test "$fallback_curses" = "yes" ; then
   AM_ICONV
   if test "$am_cv_func_iconv" != "yes"; then
     AC_MSG_ERROR([[
@@ -355,7 +356,7 @@ AC_ARG_ENABLE(inside-emacs,
             AS_HELP_STRING([--enable-inside-emacs],[include emacs hack]),
             inside_emacs=$enableval, inside_emacs=maybe)
 
-if test "$pinentry_emacs" != "no" -o "$inside_emacs" != "no"; then
+if test "$pinentry_emacs" != "no" || test "$inside_emacs" != "no"; then
   AC_MSG_CHECKING([if Unix domain socket is supported])
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/socket.h>
@@ -372,7 +373,7 @@ if test "$pinentry_emacs" != "no" -o "$inside_emacs" != "no"; then
                 [The GUI pinentries should respect INSIDE_EMACS envvar.])
     fi
   else
-    if test "$pinentry_emacs" = "yes" -o "$inside_emacs" = "yes"; then
+    if test "$pinentry_emacs" = "yes" || test "$inside_emacs" = "yes"; then
       AC_MSG_ERROR([[
 ***
 *** Support for Unix domain sockets is required.
@@ -384,7 +385,8 @@ if test "$pinentry_emacs" != "no" -o "$inside_emacs" != "no"; then
 fi
 
 AM_CONDITIONAL(BUILD_LIBPINENTRY_EMACS,
-              test "$pinentry_emacs" = "yes" -o "$inside_emacs" = "yes")
+               test "$pinentry_emacs" = "yes" \
+               || test "$inside_emacs" = "yes")
 AM_CONDITIONAL(BUILD_PINENTRY_EMACS, test "$pinentry_emacs" = "yes")
 AM_CONDITIONAL(INSIDE_EMACS, test "$inside_emacs" = "yes")
 
@@ -733,7 +735,7 @@ AC_ARG_ENABLE(pinentry-tqt,
 
 if test "$pinentry_tqt" != "no"; then
 
-  if test "$pinentry_qt5" = "yes" -o "$pinentry_qt4" = "yes"; then
+  if test "$pinentry_qt5" = "yes" || test "$pinentry_qt4" = "yes"; then
     AC_MSG_ERROR([[
     ***
     *** Building both Qt and TQt pinentries is not supported.
@@ -751,7 +753,7 @@ if test "$pinentry_tqt" != "no"; then
     AC_CHECK_TOOL([TQT_MOC], tqmoc, "no")
   fi
 
-  if test "$have_tqt_libs" = "yes" -a "$TQT_MOC" != "no"; then
+  if test "$have_tqt_libs" = "yes" && test "$TQT_MOC" != "no"; then
     pinentry_tqt=yes
   else
     AC_MSG_WARN([TQt is not found])
@@ -789,7 +791,7 @@ dnl check for FLTK libraries and set flags
 if test "$pinentry_fltk" != "no"; then
    AC_MSG_CHECKING([for FLTK 1.3/1.4])
    FLTK_VERSION=`${FLTK_CONFIG} --api-version`
-   if test ${FLTK_VERSION} != "1.3" -a ${FLTK_VERSION} != "1.4" ; then
+   if test ${FLTK_VERSION} != "1.3" && test ${FLTK_VERSION} != "1.4" ; then
        AC_MSG_RESULT([no])
        AC_MSG_WARN([FLTK 1.3/1.4 not found (available $FLTK_VERSION)])
        pinentry_fltk=no
