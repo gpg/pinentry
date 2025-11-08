@@ -267,7 +267,7 @@ gtk_cmd_handler (pinentry_t pe)
   while (!pinentry_window_done)
     g_main_context_iteration (NULL, TRUE);
 
-  if (e1)
+  if (e1 && pinentry->result == 1)
     {
       const char *s;
       int len;
