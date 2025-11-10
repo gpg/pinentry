@@ -41,8 +41,6 @@
 #  define VERSION
 #endif
 
-static pinentry_t pinentry;
-
 static int pinentry_window_done;
 
 enum action {
@@ -55,10 +53,11 @@ enum action {
 static gboolean
 close_request (GtkWindow *w, gpointer data)
 {
-  (void)w;
-  (void)data;
+  pinentry_t pe = data;
 
-  pinentry->close_button = 1;
+  (void)w;
+
+  pe->close_button = 1;
   pinentry_window_done = 1;
   return TRUE;
 }
@@ -66,41 +65,53 @@ close_request (GtkWindow *w, gpointer data)
 static void
 enter_callback (GtkPasswordEntry *e, gpointer data)
 {
-  (void)e;
-  (void)data;
+  pinentry_t pe = data;
 
-  pinentry->result = 1;
-  pinentry->canceled = 0;
+  (void)e;
+
+  pe->result = 1;
+  pe->canceled = 0;
   pinentry_window_done = 1;
 }
 
 static void
-clicked (GtkButton *button, gpointer data)
+clicked_cancel (GtkButton *button, gpointer data)
 {
-  int action = (int)(intptr_t)data;
+  pinentry_t pe = data;
+
+  pe->canceled = 1;
+  pe->result = -1;
+  pinentry_window_done = 1;
+}
+
+static void
+clicked_notok (GtkButton *button, gpointer data)
+{
+  pinentry_t pe = data;
 
   (void)button;
-  if (action == PINENTRY_ACTION_CANCEL)
-    {
-      pinentry->canceled = 1;
-      pinentry->result = -1;
-    }
-  else if (action == PINENTRY_ACTION_OK)
-    pinentry->result = 1;
-  else
-    pinentry->result = 0;
+  pe->result = 0;
+  pinentry_window_done = 1;
+}
 
+static void
+clicked_ok (GtkButton *button, gpointer data)
+{
+  pinentry_t pe = data;
+
+  (void)button;
+  pe->result = 1;
   pinentry_window_done = 1;
 }
 
 static gboolean
 timeout_cb (gpointer data)
 {
-  (void)data;
+  pinentry_t pe = data;
 
-  pinentry->result = -1;
+  pe->result = -1;
+  pe->specific_err = gpg_error (GPG_ERR_TIMEOUT);
   pinentry_window_done = 1;
-  pinentry->specific_err = gpg_error (GPG_ERR_TIMEOUT);
   return FALSE;
 }
 
@@ -131,13 +142,12 @@ gtk_cmd_handler (pinentry_t pe)
   const char *ok_str = pe->ok ? pe->ok: pe->default_ok;
   guint timeout_id = 0;
 
-  pinentry = pe;
   pinentry_window_done = 0;
   e1 = NULL;
 
   w = gtk_window_new ();
   g_signal_connect (G_OBJECT (w), "close-request",
-		    G_CALLBACK (close_request), NULL);
+                    G_CALLBACK (close_request), pe);
 
   v = gtk_box_new (GTK_ORIENTATION_VERTICAL, VSPACE);
   gtk_widget_set_margin_top (v, VSPACE);
@@ -175,7 +185,7 @@ gtk_cmd_handler (pinentry_t pe)
       gtk_grid_attach (GTK_GRID (g), e1, 1, 0, 1, 1);
 
       g_signal_connect (G_OBJECT (e1), "activate",
-                        G_CALLBACK (enter_callback), NULL);
+                        G_CALLBACK (enter_callback), pe);
 
       if (pe->quality_bar)
         {
@@ -202,24 +212,25 @@ gtk_cmd_handler (pinentry_t pe)
       cancel_str = cancel_str ? cancel_str : "Cancel";
       b_cancel = gtk_button_new_with_mnemonic (cancel_str);
       gtk_box_append (GTK_BOX (h), b_cancel);
-      g_signal_connect (G_OBJECT (b_cancel), "clicked", G_CALLBACK (clicked),
-                        (gpointer)PINENTRY_ACTION_CANCEL);
+      g_signal_connect (G_OBJECT (b_cancel), "clicked",
+                        G_CALLBACK (clicked_cancel),
+                        pe);
     }
   if (pe->notok)
     {
       b_notok = gtk_button_new_with_mnemonic (pe->notok);
       gtk_box_append (GTK_BOX (h), b_notok);
-      g_signal_connect (G_OBJECT (b_notok), "clicked", G_CALLBACK (clicked),
-                        (gpointer)PINENTRY_ACTION_NOTOK);
+      g_signal_connect (G_OBJECT (b_notok), "clicked",
+                        G_CALLBACK (clicked_notok),
+                        pe);
     }
   b_ok = gtk_button_new_with_mnemonic (ok_str? ok_str : "OK");
   gtk_box_append (GTK_BOX (h), b_ok);
-  g_signal_connect (G_OBJECT (b_ok), "clicked", G_CALLBACK (clicked),
-                    (gpointer)PINENTRY_ACTION_OK);
+  g_signal_connect (G_OBJECT (b_ok), "clicked", G_CALLBACK (clicked_ok), pe);
 
   gtk_box_append (GTK_BOX (v), h);
 
-  title = pinentry_get_title (pinentry);
+  title = pinentry_get_title (pe);
   if (title)
     {
       gtk_window_set_title (GTK_WINDOW (w), title);
@@ -262,22 +273,22 @@ gtk_cmd_handler (pinentry_t pe)
     }
 
   if (pe->timeout > 0)
-    timeout_id = g_timeout_add (pe->timeout * 1000, timeout_cb, NULL);
+    timeout_id = g_timeout_add (pe->timeout * 1000, timeout_cb, pe);
 
   while (!pinentry_window_done)
     g_main_context_iteration (NULL, TRUE);
 
-  if (e1 && pinentry->result == 1)
+  if (e1 && pe->result == 1)
     {
       const char *s;
       int len;
 
       s = gtk_editable_get_text (GTK_EDITABLE (e1));
       len = strlen (s);
-      pinentry_setbufferlen (pinentry, len + 1);
-      if (pinentry->pin)
-        strcpy (pinentry->pin, s);
-      pinentry->result = len;
+      pinentry_setbufferlen (pe, len + 1);
+      if (pe->pin)
+        strcpy (pe->pin, s);
+      pe->result = len;
     }
 
   gtk_window_destroy (GTK_WINDOW (w));
@@ -285,7 +296,6 @@ gtk_cmd_handler (pinentry_t pe)
   if (pe->timeout > 0 && gpg_err_code (pe->specific_err) != GPG_ERR_TIMEOUT)
     g_source_remove (timeout_id);
 
-  pinentry = NULL;
   return pe->result;
 }
 
