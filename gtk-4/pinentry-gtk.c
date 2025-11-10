@@ -41,8 +41,6 @@
 #  define VERSION
 #endif
 
-static int pinentry_window_done;
-
 enum action {
   PINENTRY_ACTION_CANCEL,
   PINENTRY_ACTION_OK,
@@ -57,8 +55,9 @@ close_request (GtkWindow *w, gpointer data)
 
   (void)w;
 
+  pe->result = -1;
   pe->close_button = 1;
-  pinentry_window_done = 1;
+  pe->specific_err = gpg_error (GPG_ERR_CANCELED);
   return TRUE;
 }
 
@@ -70,8 +69,6 @@ enter_callback (GtkPasswordEntry *e, gpointer data)
   (void)e;
 
   pe->result = 1;
-  pe->canceled = 0;
-  pinentry_window_done = 1;
 }
 
 static void
@@ -79,9 +76,9 @@ clicked_cancel (GtkButton *button, gpointer data)
 {
   pinentry_t pe = data;
 
-  pe->canceled = 1;
   pe->result = -1;
-  pinentry_window_done = 1;
+  pe->canceled = 1;
+  pe->specific_err = gpg_error (GPG_ERR_CANCELED);
 }
 
 static void
@@ -90,8 +87,8 @@ clicked_notok (GtkButton *button, gpointer data)
   pinentry_t pe = data;
 
   (void)button;
-  pe->result = 0;
-  pinentry_window_done = 1;
+  pe->result = -1;
+  pe->specific_err = 0;
 }
 
 static void
@@ -101,7 +98,6 @@ clicked_ok (GtkButton *button, gpointer data)
 
   (void)button;
   pe->result = 1;
-  pinentry_window_done = 1;
 }
 
 static gboolean
@@ -111,7 +107,6 @@ timeout_cb (gpointer data)
 
   pe->result = -1;
   pe->specific_err = gpg_error (GPG_ERR_TIMEOUT);
-  pinentry_window_done = 1;
   return FALSE;
 }
 
@@ -142,7 +137,10 @@ gtk_cmd_handler (pinentry_t pe)
   const char *ok_str = pe->ok ? pe->ok: pe->default_ok;
   guint timeout_id = 0;
 
-  pinentry_window_done = 0;
+  pe->result = 0;
+  pe->canceled = 0;
+  pe->close_button = 0;
+
   e1 = NULL;
 
   w = gtk_window_new ();
@@ -275,10 +273,13 @@ gtk_cmd_handler (pinentry_t pe)
   if (pe->timeout > 0)
     timeout_id = g_timeout_add (pe->timeout * 1000, timeout_cb, pe);
 
-  while (!pinentry_window_done)
+  while (!pe->result)
     g_main_context_iteration (NULL, TRUE);
 
-  if (e1 && pe->result == 1)
+  if (pe->result == -1 && pe->specific_err == 0)
+    /* The action was "Not OK" */
+    pe->result = 0;
+  else if (e1 && pe->result == 1)
     {
       const char *s;
       int len;
