@@ -187,16 +187,19 @@ gtk_cmd_handler (pinentry_t pe)
 
       if (pe->quality_bar)
         {
+          /*
+            gtk_levelbar_add_set_value (GTK_LEVEL_BAR (b), 0.8);
+          */
           q = gtk_level_bar_new ();
           gtk_grid_attach (GTK_GRID (g), q, 0, 1, 2, 1);
-          if (pe->repeat_passphrase)
-            {
-              p2 = gtk_label_new (pe->repeat_passphrase);
-              gtk_grid_attach (GTK_GRID (g), p2, 0, 2, 1, 1);
-              e2 = gtk_password_entry_new ();
-              gtk_grid_attach (GTK_GRID (g), e2, 1, 2, 1, 1);
-              puts ("Q!");
-            }
+        }
+
+      if (pe->repeat_passphrase)
+        {
+          p2 = gtk_label_new (pe->repeat_passphrase);
+          gtk_grid_attach (GTK_GRID (g), p2, 0, 2, 1, 1);
+          e2 = gtk_password_entry_new ();
+          gtk_grid_attach (GTK_GRID (g), e2, 1, 2, 1, 1);
         }
 
       gtk_box_append (GTK_BOX (v), g);
@@ -252,16 +255,14 @@ gtk_cmd_handler (pinentry_t pe)
     ->canceled
    */
   /*
-    genpin_label
+    ->genpin_label
    */
   /*
-    ->repeat_passphrase
     ->repeat_error_string
     ->repeat_ok_string
    */
-  /* quality bar
-     b = gtk_level_bar_new ();
-     gtk_levelbar_add_set_value (GTK_LEVEL_BAR (b), 0.8);
+  /*
+    ->*_tt
    */
   gtk_window_present (GTK_WINDOW (w));
 
