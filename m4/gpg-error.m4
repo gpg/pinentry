@@ -1,6 +1,6 @@
 # gpg-error.m4 - autoconf macro to detect libgpg-error.
-# Copyright (C) 2002, 2003, 2004, 2011, 2014, 2018, 2020, 2021, 2022, 2024
-#               g10 Code GmbH
+# Copyright (C) 2002, 2003, 2004, 2011, 2014, 2018, 2020, 2021, 2022, 2024,
+#               2025  g10 Code GmbH
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-# Last-changed: 2024-06-13
+# Last-changed: 2025-09-24
 
 dnl
 dnl Find gpg-error-config, for backward compatibility
@@ -155,11 +155,11 @@ AC_DEFUN([AM_PATH_GPG_ERROR],
 [ AC_REQUIRE([AC_CANONICAL_HOST])dnl
   AC_REQUIRE([_AM_PATH_POSSIBLE_GPG_ERROR_CONFIG])dnl
   AC_REQUIRE([_AM_PATH_GPGRT_CONFIG])dnl
-  if test x"$GPGRT_CONFIG" != x -a "$GPGRT_CONFIG" != "no"; then
+  if test x"$GPGRT_CONFIG" != x && test "$GPGRT_CONFIG" != "no"; then
     GPG_ERROR_CONFIG="$GPGRT_CONFIG gpg-error"
     AC_MSG_NOTICE([Use gpgrt-config with $gpgrt_libdir as gpg-error-config])
     gpg_error_config_version=`$GPG_ERROR_CONFIG --modversion`
-  elif test x"$GPG_ERROR_CONFIG" != x -a "$GPG_ERROR_CONFIG" != "no"; then
+  elif test x"$GPG_ERROR_CONFIG" != x && test "$GPG_ERROR_CONFIG" != "no"; then
     gpg_error_config_version=`$GPG_ERROR_CONFIG --version`
   else
     gpg_error_config_version="0.0"

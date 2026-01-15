@@ -9,7 +9,7 @@ dnl This file is distributed in the hope that it will be useful, but
 dnl WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl SPDX-License-Identifier: FSFULLR
-# Last-changed: 2024-07-11
+# Last-changed: 2025-09-24
 
 dnl
 dnl Find gpgrt-config, which uses .pc file
@@ -114,7 +114,7 @@ AC_DEFUN([_AM_PATH_LIBASSUAN_COMMON],
   fi
 
   use_gpgrt_config=""
-  if test x"$GPGRT_CONFIG" != x -a "$GPGRT_CONFIG" != "no"; then
+  if test x"$GPGRT_CONFIG" != x && test "$GPGRT_CONFIG" != "no"; then
     if $GPGRT_CONFIG libassuan --exists; then
       LIBASSUAN_CONFIG="$GPGRT_CONFIG libassuan"
       AC_MSG_NOTICE([Use gpgrt-config as libassuan-config])
@@ -191,7 +191,7 @@ AC_DEFUN([_AM_PATH_LIBASSUAN_COMMON],
         AC_MSG_CHECKING([LIBASSUAN API version])
         if test "$req_libassuan_api" -eq "$tmp" ; then
           AC_MSG_RESULT(okay)
-        elif test "$req_libassuan_api" -eq 2 -a "$tmp" -eq 3; then
+        elif test "$req_libassuan_api" -eq 2 && test "$tmp" -eq 3; then
           AC_MSG_RESULT(okay)
         else
           ok=no
