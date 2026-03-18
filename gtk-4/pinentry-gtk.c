@@ -57,7 +57,6 @@ close_request (GtkWindow *w, gpointer data)
 
   pe->result = -1;
   pe->close_button = 1;
-  pe->specific_err = gpg_error (GPG_ERR_CANCELED);
   return TRUE;
 }
 
@@ -78,7 +77,6 @@ clicked_cancel (GtkButton *button, gpointer data)
 
   pe->result = -1;
   pe->canceled = 1;
-  pe->specific_err = gpg_error (GPG_ERR_CANCELED);
 }
 
 static void
@@ -277,7 +275,8 @@ gtk_cmd_handler (pinentry_t pe)
   while (!pe->result)
     g_main_context_iteration (NULL, TRUE);
 
-  if (pe->result == -1 && pe->specific_err == 0)
+  if (pe->result == -1 && pe->specific_err == 0
+      && pe->canceled == 0 && pe->close_button == 0)
     /* The action was "Not OK" */
     pe->result = 0;
   else if (e1 && pe->result == 1)
