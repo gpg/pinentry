@@ -21,7 +21,7 @@
 
 logos = logo-32.bmp logo-48.bmp logo-64.bmp logo-96.bmp logo-128.bmp
 
-EXTRA_DIST = $(logos)
+EXTRA_DIST = $(logos) app.manifest gnupg-logo.svg
 
 bin_PROGRAMS = pinentry-w32
 
@@ -37,6 +37,6 @@ pinentry_w32_LDADD = pinentry-w32.o \
 	../pinentry/libpinentry.a ../secmem/libsecmem.a \
         $(COMMON_LIBS)
 
-pinentry-w32.o: pinentry-w32.rc resource.h $(logos)
+pinentry-w32.o: pinentry-w32.rc resource.h $(logos) app.manifest
 	$(WINDRES) -I.. -v -o $@ $<
 

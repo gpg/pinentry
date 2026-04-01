@@ -270,20 +270,29 @@ set_bitmap (HWND dlg, int item)
     }
   /* fprintf (stderr, "MapDialogRect: %d/%d\n", rect.right, rect.bottom); */
 
-  switch (rect.right)
-    {
-    case 32: resid = IDB_ICON_32; break;
-    case 48: resid = IDB_ICON_48; break;
-    case 64: resid = IDB_ICON_64; break;
-    case 96: resid = IDB_ICON_96; break;
-    default: resid = IDB_ICON_128;break;
-    }
+  /* Use the smaller dimension so the icon stays square and fits
+     the control without clipping.  Pick the closest bitmap that is
+     at least as large as the target to avoid upscaling.  */
+  {
+    long sz = rect.right < rect.bottom ? rect.right : rect.bottom;
 
-  bitmap = LoadImage (GetModuleHandle (NULL),
-                      MAKEINTRESOURCE (resid),
-                      IMAGE_BITMAP,
-                      rect.right, rect.bottom,
-                      (LR_SHARED | LR_LOADTRANSPARENT | LR_LOADMAP3DCOLORS));
+    if (sz <= 32)
+      resid = IDB_ICON_32;
+    else if (sz <= 48)
+      resid = IDB_ICON_48;
+    else if (sz <= 64)
+      resid = IDB_ICON_64;
+    else if (sz <= 96)
+      resid = IDB_ICON_96;
+    else
+      resid = IDB_ICON_128;
+
+    bitmap = LoadImage (GetModuleHandle (NULL),
+                        MAKEINTRESOURCE (resid),
+                        IMAGE_BITMAP,
+                        sz, sz,
+                        (LR_SHARED | LR_LOADTRANSPARENT | LR_LOADMAP3DCOLORS));
+  }
   if (!bitmap)
     {
       fprintf (stderr, "LoadImage failed: %s\n",  w32_strerror (-1));
