@@ -322,7 +322,10 @@ confirm (pinentry_t pinentry, FILE *ttyfi, FILE *ttyfo)
 
 #ifndef HAVE_DOSISH_SYSTEM
   if (timed_out)
-    pinentry->specific_err = gpg_error (GPG_ERR_TIMEOUT);
+    {
+      pinentry->specific_err = gpg_error (GPG_ERR_TIMEOUT);
+      tcflush (fileno (ttyfi), TCIFLUSH);
+    }
 #endif
 
   return ret;
@@ -478,7 +481,10 @@ password (pinentry_t pinentry, FILE *ttyfi, FILE *ttyfo)
 
 #ifndef HAVE_DOSISH_SYSTEM
   if (timed_out)
-    pinentry->specific_err = gpg_error (GPG_ERR_TIMEOUT);
+    {
+      pinentry->specific_err = gpg_error (GPG_ERR_TIMEOUT);
+      tcflush (fileno (ttyfi), TCIFLUSH);
+    }
 #endif
 
   return done;
