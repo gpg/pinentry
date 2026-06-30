@@ -424,7 +424,7 @@ draw_error (dialog_t dialog, int *xpos, int *ypos, int repeat_matches)
   int error_y = dialog->error_y;
   pinentry_t pinentry = dialog->pinentry;
 
-  if (dialog->pinentry->confirm)
+  if (!pinentry->pin)
     return;
 
   for (i = 0; i < dialog->error_height; i++)
