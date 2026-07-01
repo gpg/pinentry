@@ -1,5 +1,15 @@
-Noteworthy changes in version 1.3.3 (unreleased)
+Noteworthy changes in version 1.3.3 (2026-07-01)
 ------------------------------------------------
+
+ * w32: Modernize the dialog of the simple Pinetry for Windows Vista
+   and later.  [rP86ab46ebe9]
+
+ * gtk,curses: Add --focus=ok option to CONFIRM command.  [T8315]
+
+ * tty: Discard input on timeout.  [rP4c72137885]
+
+ * Various build fixes.
+
 
 Noteworthy changes in version 1.3.2 (2025-07-28)
 ------------------------------------------------
