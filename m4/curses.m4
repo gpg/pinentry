@@ -129,7 +129,8 @@ AC_DEFUN([IU_LIB_CURSES], [
     _IU_SAVE_LIBS="$LIBS"
     LIBS="$LIBTERMCAP"
     AC_CHECK_LIB(curses, initscr, LIBCURSES="-lcurses")
-    if test "$LIBCURSES" -a "$LIBTERMCAP" -a "$LIBCURSES" != "$LIBTERMCAP"; then
+    if test "$LIBCURSES" && test "$LIBTERMCAP" \
+       && test "$LIBCURSES" != "$LIBTERMCAP"; then
       AC_CACHE_CHECK(whether curses needs $LIBTERMCAP,
 		     inetutils_cv_curses_needs_termcap,
 	LIBS="$LIBCURSES"

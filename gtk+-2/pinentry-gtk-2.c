@@ -577,8 +577,12 @@ create_window (pinentry_t ctx)
   GtkAccelGroup *acc;
   gchar *msg;
   char *p;
+  GtkWidget *w_focused;
+
+  (void)ctx;
 
   repeat_entry = NULL;
+  w_focused = NULL;
 
   /* FIXME: check the grabbing code against the one we used with the
      old gpg-agent */
@@ -837,6 +841,8 @@ create_window (pinentry_t ctx)
 
           msg = pinentry_utf8_validate (pinentry->default_cancel);
           w = gtk_button_new_with_mnemonic (msg);
+          if (pinentry->confirm_focus < 0)
+            w_focused = w;
           g_free (msg);
           image = gtk_image_new_from_stock (GTK_STOCK_CANCEL,
                                             GTK_ICON_SIZE_BUTTON);
@@ -872,6 +878,8 @@ create_window (pinentry_t ctx)
       msg = pinentry_utf8_validate (pinentry->ok);
       w = gtk_button_new_with_mnemonic (msg);
       g_free (msg);
+      if (pinentry->confirm_focus > 0)
+        w_focused = w;
     }
   else if (pinentry->default_ok)
     {
@@ -879,6 +887,8 @@ create_window (pinentry_t ctx)
 
       msg = pinentry_utf8_validate (pinentry->default_ok);
       w = gtk_button_new_with_mnemonic (msg);
+      if (pinentry->confirm_focus > 0)
+        w_focused = w;
       g_free (msg);
       image = gtk_image_new_from_stock (GTK_STOCK_OK,
                                         GTK_ICON_SIZE_BUTTON);
@@ -886,9 +896,18 @@ create_window (pinentry_t ctx)
         gtk_button_set_image (GTK_BUTTON (w), image);
     }
   else
-    w = gtk_button_new_from_stock (GTK_STOCK_OK);
+    {
+      w = gtk_button_new_from_stock (GTK_STOCK_OK);
+      if (pinentry->confirm_focus > 0)
+        w_focused = w;
+    }
   gtk_container_add (GTK_CONTAINER(bbox), w);
-  if (!confirm_mode)
+  if (confirm_mode)
+    {
+      if (w_focused)
+        gtk_widget_grab_focus (w_focused);
+    }
+  else
     {
       gtk_widget_set_can_default (w, TRUE);
       gtk_widget_grab_default (w);

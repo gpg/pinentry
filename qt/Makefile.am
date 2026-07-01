@@ -39,13 +39,13 @@ endif
 AM_CPPFLAGS = $(COMMON_CFLAGS) \
 	-I$(top_srcdir) -I$(top_srcdir)/secmem \
 	$(ncurses_include) -I$(top_srcdir)/pinentry
-AM_CXXFLAGS = $(PINENTRY_QT5_CFLAGS)
+AM_CXXFLAGS = $(PINENTRY_QT6_CFLAGS)
 pinentry_qt_LDADD = \
 	../pinentry/libpinentry.a $(top_builddir)/secmem/libsecmem.a \
-	$(COMMON_LIBS) $(PINENTRY_QT5_LIBS) $(libcurses)
-pinentry_qt_LDFLAGS = $(PINENTRY_QT5_LDFLAGS)
+	$(COMMON_LIBS) $(PINENTRY_QT6_LIBS) $(libcurses)
+pinentry_qt_LDFLAGS = $(PINENTRY_QT6_LDFLAGS)
 
-if BUILD_PINENTRY_QT5
+if BUILD_PINENTRY_QT6
 BUILT_SOURCES = \
 	pinentryconfirm.moc pinentrydialog.moc pinlineedit.moc capslock.moc \
 	focusframe.moc \
@@ -73,7 +73,10 @@ pinentry_qt_SOURCES = pinentrydialog.h pinentrydialog.cpp \
 nodist_pinentry_qt_SOURCES = $(BUILT_SOURCES)
 
 .h.moc:
-	$(MOC5) `test -f '$<' || echo '$(srcdir)/'`$< -o $@
+	$(MOC6) `test -f '$<' || echo '$(srcdir)/'`$< -o $@
 
 pinentryrc.cpp: pinentryrc.qrc
-	$(RCC5) `test -f '$<' || echo '$(srcdir)/'`$< -o $@
+	$(RCC6) `test -f '$<' || echo '$(srcdir)/'`$< -o $@
+
+desktopdir = $(datadir)/applications
+desktop_DATA = org.gnupg.pinentry-qt.desktop
