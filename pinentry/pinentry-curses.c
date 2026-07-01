@@ -1535,7 +1535,15 @@ dialog_run (pinentry_t pinentry, const char *tty_name, const char *tty_type)
       dialog_release (&diag);
       return -2;
     }
-  dialog_switch_pos (&diag, confirm_mode? DIALOG_POS_OK : DIALOG_POS_PIN);
+  if (confirm_mode)
+    {
+      if (pinentry->confirm_focus >= 0)
+        dialog_switch_pos (&diag, DIALOG_POS_OK);
+      else
+        dialog_switch_pos (&diag, DIALOG_POS_CANCEL);
+    }
+  else
+    dialog_switch_pos (&diag, DIALOG_POS_PIN);
 
 #ifndef HAVE_DOSISH_SYSTEM
   wtimeout (stdscr, 70);
