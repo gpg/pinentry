@@ -81,7 +81,7 @@ AM_MISSING_PROG(MAKEINFO, makeinfo, $missing_dir)
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
-AC_PROG_AR
+AC_CHECK_TOOL(AR, ar, :)
 AC_PROG_RANLIB
 # We need to check for cplusplus here because we may not do the test
 # for Qt and autoconf does does not allow that.
