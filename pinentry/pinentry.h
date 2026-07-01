@@ -152,8 +152,9 @@ struct pinentry
      dismiss button is required. */
   int one_button;
 
-  /* Whether this is a CONFIRM pinentry. */
-  int confirm;
+  /* With CONFIRM command, -1 means default action (focus) is CANCEL,
+     1 means OK.  When 0, it is implementation dependent.  */
+  int confirm_focus;
 
   /* If true a second prompt for the passphrase is shown and the user
      is expected to enter the same passphrase again.  Pinentry checks

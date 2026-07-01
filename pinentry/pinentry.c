@@ -1625,7 +1625,7 @@ cmd_getpin (assuan_context_t ctx, char *line)
   if (!pinentry.pin)
     return gpg_error (GPG_ERR_ENOMEM);
 
-  pinentry.confirm = 0;
+  pinentry.confirm_focus = 0;
 
   /* Try reading from the password cache.  */
   if (/* If repeat passphrase is set, then we don't want to read from
@@ -1768,7 +1768,12 @@ static gpg_error_t
 cmd_confirm (assuan_context_t ctx, char *line)
 {
   int result;
+  int focus = 0;
 
+  if (strstr (line, "--focus=ok"))
+    focus = 1;
+  else if (strstr (line, "--focus=cancel"))
+    focus = -1;
   pinentry.one_button = !!strstr (line, "--one-button");
   pinentry.quality_bar = 0;
   pinentry.close_button = 0;
@@ -1778,7 +1783,7 @@ cmd_confirm (assuan_context_t ctx, char *line)
   free (pinentry.specific_err_info);
   pinentry.specific_err_info = NULL;
   pinentry.canceled = 0;
-  pinentry.confirm = 1;
+  pinentry.confirm_focus = focus;
   pinentry_setbuffer_clear (&pinentry);
   result = (*pinentry_cmd_handler) (&pinentry);
   if (pinentry.error)
