@@ -135,6 +135,7 @@ gtk_cmd_handler (pinentry_t pe)
   const char *ok_str = pe->ok ? pe->ok: pe->default_ok;
   guint timeout_id = 0;
 
+  b_cancel = NULL;
   pe->result = 0;
   pe->canceled = 0;
   pe->close_button = 0;
@@ -164,7 +165,7 @@ gtk_cmd_handler (pinentry_t pe)
   if (n)
     gtk_box_append (GTK_BOX (v), n);
 
-  if (!pe->confirm)
+  if (pe->pin)
     {
       g = gtk_grid_new ();
 
@@ -264,9 +265,12 @@ gtk_cmd_handler (pinentry_t pe)
    */
   gtk_window_present (GTK_WINDOW (w));
 
-  if (pe->confirm)
+  if (!pe->pin)
     {
-      gtk_widget_grab_focus (b_ok);
+      if (pe->confirm_focus < 0 && b_cancel)
+        gtk_widget_grab_focus (b_cancel);
+      else
+        gtk_widget_grab_focus (b_ok);
     }
 
   if (pe->timeout > 0)
