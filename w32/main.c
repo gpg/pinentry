@@ -352,6 +352,16 @@ dlg_proc (HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam)
           SetWindowPos (GetDlgItem (dlg, IDC_PINENT_TEXT), NULL, 0, 0, 0, 0,
                         (SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_HIDEWINDOW));
 
+          if (pe->confirm_focus > 0)
+            {
+              SendMessage(dlg, DM_SETDEFID, IDOK, 0);
+              SetFocus (GetDlgItem (dlg, IDOK));
+            }
+          else if (pe->confirm_focus < 0)
+            {
+              SendMessage(dlg, DM_SETDEFID, IDCANCEL, 0);
+              SetFocus (GetDlgItem (dlg, IDCANCEL));
+            }
           /* item = IDOK; */
         }
       /* else */
@@ -474,7 +484,6 @@ main (int argc, char **argv)
 /*   debugfp = fopen ("pinentry.log", "w"); */
 /*   if (!debugfp) */
 /*     debugfp = stderr; */
-
 
   if (pinentry_loop2 (w32_infd, w32_outfd))
     return 1;
