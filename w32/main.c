@@ -369,7 +369,13 @@ dlg_proc (HWND dlg, UINT msg, WPARAM wparam, LPARAM lparam)
 
       center_window (dlg, HWND_TOP);
 
-      ShowWindow (dlg, SW_SHOW);
+      /* Use the minimize/restore trick to reliably bring the
+         dialog to the foreground.  Similar to the raiseWindow
+         approach used by pinentry-qt on Windows.  */
+      ShowWindow (dlg, SW_MINIMIZE);
+      ShowWindow (dlg, SW_RESTORE);
+      SetForegroundWindow (dlg);
+      BringWindowToTop (dlg);
 
       break;
 
