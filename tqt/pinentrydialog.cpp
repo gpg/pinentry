@@ -31,7 +31,8 @@
 #include "pinentry.h"
 
 PinEntryDialog::PinEntryDialog( TQWidget* parent, const char* name,
-                                bool modal, bool enable_quality_bar )
+                                bool modal, bool enable_quality_bar,
+                                pinentry_t pe )
   : TQDialog( parent, name, modal, TQt::WStyle_StaysOnTop ), _grabbed( false ),
     _disable_echo_allowed ( true )
 {
@@ -82,7 +83,10 @@ PinEntryDialog::PinEntryDialog( TQWidget* parent, const char* name,
   l->addStretch();
   l->addWidget( _cancel );
 
-  _ok->setDefault(true);
+  if (pe->confirm_focus < 0)
+    _cancel->setDefault(true);
+  else
+    _ok->setDefault(true);
 
   connect( _ok, SIGNAL( clicked() ),
 	   this, SIGNAL( accepted() ) );

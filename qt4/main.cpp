@@ -299,7 +299,11 @@ qt_cmd_handler(pinentry_t pe)
         box.setIconPixmap(icon());
 
         if (!pe->one_button) {
-            box.setDefaultButton(QMessageBox::Cancel);
+            if (pe->confirm_focus > 0) {
+                box.setDefaultButton(QMessageBox::Ok);
+            } else {
+                box.setDefaultButton(QMessageBox::Cancel);
+            }
         }
 
         box.show();
