@@ -223,7 +223,7 @@ timeout_cb (const void * data)
 }
 
 static void
-create_window (void)
+create_window (pinentry_t pe)
 {
   char *txt;
   Evas_Object *icon;
@@ -463,6 +463,8 @@ create_window (void)
                                      "clicked",
                                      on_click,
                                      (void *) CONFIRM_CANCEL);
+      if (confirm_mode && pe->confirm_focus < 0)
+        elm_object_focus_set (obj, EINA_TRUE);
       evas_object_show(obj);
     }
 
@@ -509,6 +511,8 @@ create_window (void)
                                   ELM_SCALE_SIZE(BUTTON_HEIGHT));
   elm_table_pack(table, obj, 5, row, 1, 1);
   evas_object_smart_callback_add(obj, "clicked", on_click, (void *) CONFIRM_OK);
+  if (confirm_mode && pe->confirm_focus > 0)
+    elm_object_focus_set (obj, EINA_TRUE);
   evas_object_show(obj);
 
   /* Key/Lock Icon */
@@ -567,7 +571,7 @@ efl_cmd_handler (pinentry_t pe)
   if (pe->display)
     ecore_x_init (pe->display);
   elm_init (pargc, pargv);
-  create_window ();
+  create_window (pe);
   ecore_main_loop_begin ();
 
   if (timer)
