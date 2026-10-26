@@ -25,7 +25,7 @@
 RELEASE_ARCHIVE_SUFFIX = pinentry
 
 ACLOCAL_AMFLAGS = -I m4
-DISTCHECK_CONFIGURE_FLAGS = --disable-pinentry-qt --enable-pinentry-emacs
+DISTCHECK_CONFIGURE_FLAGS = --disable-pinentry-qt
 
 GITLOG_TO_CHANGELOG=gitlog-to-changelog
 
@@ -43,12 +43,6 @@ if BUILD_PINENTRY_TTY
 pinentry_tty = tty
 else
 pinentry_tty =
-endif
-
-if BUILD_PINENTRY_EMACS
-pinentry_emacs = emacs
-else
-pinentry_emacs =
 endif
 
 if BUILD_PINENTRY_GTK_2
@@ -112,7 +106,7 @@ doc =
 endif
 
 SUBDIRS = m4 secmem pinentry ${pinentry_curses} ${pinentry_tty} \
-	${pinentry_emacs} ${pinentry_gtk_2} ${pinentry_gnome_3} \
+	${pinentry_gtk_2} ${pinentry_gnome_3} \
 	${pinentry_qt} ${pinentry_qt5} ${pinentry_qt4}  ${pinentry_tqt} ${pinentry_w32} \
 	${pinentry_fltk} ${pinentry_efl} ${doc}
 

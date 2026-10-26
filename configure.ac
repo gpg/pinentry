@@ -348,58 +348,6 @@ if test "$pinentry_curses" = "yes" \
 fi
 
 dnl
-dnl Check for emacs pinentry program.
-dnl
-AC_ARG_ENABLE(pinentry-emacs,
-            AS_HELP_STRING([--enable-pinentry-emacs],[build emacs pinentry]),
-            pinentry_emacs=$enableval, pinentry_emacs=no)
-AC_ARG_ENABLE(inside-emacs,
-            AS_HELP_STRING([--enable-inside-emacs],[include emacs hack]),
-            inside_emacs=$enableval, inside_emacs=maybe)
-
-if test "$pinentry_emacs" != "no" || test "$inside_emacs" != "no"; then
-  AC_MSG_CHECKING([if Unix domain socket is supported])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <sys/socket.h>
-#include <sys/un.h>
-]], [[int s = socket (AF_UNIX, SOCK_STREAM, 0);]])],[_unixsock_works=yes],[_unixsock_works=no])
-  AC_MSG_RESULT($_unixsock_works)
-  if test "$_unixsock_works" = "yes"; then
-    if test "$pinentry_emacs" != "no"; then
-      pinentry_emacs=yes
-    fi
-    if test "$inside_emacs" != "no"; then
-      inside_emacs=yes
-      AC_DEFINE(INSIDE_EMACS, 1,
-                [The GUI pinentries should respect INSIDE_EMACS envvar.])
-    fi
-  else
-    if test "$pinentry_emacs" = "yes" || test "$inside_emacs" = "yes"; then
-      AC_MSG_ERROR([[
-***
-*** Support for Unix domain sockets is required.
-***]])
-    fi
-    pinentry_emacs=no
-    inside_emacs=no
-  fi
-fi
-
-AM_CONDITIONAL(BUILD_LIBPINENTRY_EMACS,
-               test "$pinentry_emacs" = "yes" \
-               || test "$inside_emacs" = "yes")
-AM_CONDITIONAL(BUILD_PINENTRY_EMACS, test "$pinentry_emacs" = "yes")
-AM_CONDITIONAL(INSIDE_EMACS, test "$inside_emacs" = "yes")
-
-if test "$pinentry_emacs" = "yes"; then
-  AC_DEFINE(PINENTRY_EMACS, 1,
-            [The Emacs version of Pinentry is to be build])
-  AC_MSG_WARN([pinentry-emacs is obsolete; Emacs version 26 or later never uses it.])
-fi
-
-
-
-dnl
 dnl Check for EFL pinentry programs.
 dnl
 AC_ARG_ENABLE(pinentry-efl,
@@ -932,7 +880,6 @@ pinentry/Makefile
 curses/Makefile
 tty/Makefile
 efl/Makefile
-emacs/Makefile
 gtk+-2/Makefile
 gnome3/Makefile
 qt/Makefile
@@ -960,7 +907,6 @@ AC_MSG_NOTICE([
 
 	Curses Pinentry ..: $pinentry_curses
 	TTY Pinentry .....: $pinentry_tty
-	Emacs Pinentry ...: $pinentry_emacs
 	EFL Pinentry .....: $pinentry_efl
 	GTK+-2 Pinentry ..: $pinentry_gtk_2
 	GNOME 3 Pinentry .: $pinentry_gnome_3
@@ -972,7 +918,6 @@ AC_MSG_NOTICE([
 	FLTK Pinentry ....: $pinentry_fltk
 
 	Fallback to Curses: $fallback_curses
-	Emacs integration : $inside_emacs
 
 	libsecret ........: $libsecret
 

@@ -42,9 +42,6 @@
 #include "pinentry.h"
 #include "password-cache.h"
 
-#ifdef INSIDE_EMACS
-# include "pinentry-emacs.h"
-#endif
 #ifdef FALLBACK_CURSES
 # include "pinentry-curses.h"
 #endif
@@ -1199,12 +1196,6 @@ option_handler (assuan_context_t ctx, const char *key, const char *value)
       pinentry.allow_external_password_cache = (!desktop || strcmp (desktop, "KDE") || (kde_use_wallet && *kde_use_wallet));
       pinentry.tried_password_cache = 0;
     }
-  else if (!strcmp (key, "allow-emacs-prompt") && !*value)
-    {
-#ifdef INSIDE_EMACS
-      pinentry_enable_emacs_cmd_handler ();
-#endif
-    }
   else if (!strcmp (key, "invisible-char"))
     {
       if (pinentry.invisible_char)
@@ -1863,7 +1854,7 @@ device_stat_string (const char *device)
      version     - Return the version of the program.
      pid         - Return the process id of the server.
      flavor      - Return information about the used pinentry flavor
-     ttyinfo     - Return DISPLAY, ttyinfo and an emacs pinentry status
+     ttyinfo     - Return DISPLAY and ttyinfo pinentry status
  */
 static gpg_error_t
 cmd_getinfo (assuan_context_t ctx, char *line)
@@ -1900,24 +1891,16 @@ cmd_getinfo (assuan_context_t ctx, char *line)
     }
   else if (!strcmp (line, "ttyinfo"))
     {
-      char emacs_status[10];
-#ifdef INSIDE_EMACS
-      snprintf (emacs_status, sizeof emacs_status,
-                "%d", pinentry_emacs_status ());
-#else
-      strcpy (emacs_status, "-");
-#endif
-      snprintf (buffer, sizeof buffer, "%s %s %s %s %lu/%lu %s",
+      snprintf (buffer, sizeof buffer, "%s %s %s %s %lu/%lu -",
                 pinentry.ttyname? pinentry.ttyname : "-",
                 pinentry.ttytype_l? pinentry.ttytype_l : "-",
                 pinentry.display? pinentry.display : "-",
                 device_stat_string (pinentry.ttyname),
 #ifdef HAVE_DOSISH_SYSTEM
-                0l, 0l,
+                0l, 0l
 #else
-                (unsigned long)geteuid (), (unsigned long)getegid (),
+                (unsigned long)geteuid (), (unsigned long)getegid ()
 #endif
-                emacs_status
                 );
       rc = assuan_send_data (ctx, buffer, strlen (buffer));
     }

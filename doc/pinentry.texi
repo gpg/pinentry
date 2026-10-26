@@ -215,7 +215,7 @@ options using Assuan protocol options.
 @chapter Front Ends
 
 There are several different flavors of @pinentry{}.  Concretely, there
-are Gtk+2, Qt@tie{}4/5/6, TQt, EFL, FLTK, Gnome@tie{}3, Emacs, curses and
+are Gtk+2, Qt@tie{}4/5/6, TQt, EFL, FLTK, Gnome@tie{}3, curses and
 tty variants.  These different implementations provide higher levels
 of integration with a specific environment.  For instance, the
 Gnome@tie{}3 @pinentry{} uses Gnome@tie{}3 widgets to display the
@@ -249,31 +249,11 @@ you need to remain logged in for GPG@tie{}Agent to use that console,
 you should run there and have @code{screen} or @code{tmux} lock the
 tty.
 
-The Emacs pinentry implementation interacts with a running Emacs
-session and directs the Emacs instance to display the passphrase
-prompt.  Since this doesn't work very well if there is no Emacs
-running, the generic @pinentry{} backend checks if a
-@pinentry{}-enabled Emacs should be used.  Specifically, it looks to
-see if the @code{INSIDE_EMACS} variable is set and then attempts to
-establish a connection to the specified address.  If this is the case,
-then instead of, e.g., @code{pinentry-gtk2} displaying a Gtk+2
-pinentry, it interacts with the Emacs session.  This functionality can
-be explicitly disabled by passing @code{--disable-inside-emacs} to
-@code{configure} when building @pinentry{}.
-
-Having Emacs get the passphrase is convenient, however, it is a
-significant security risk.  Emacs is a huge program, which doesn't
-provide any process isolation to speak of.  As such, having it handle
-the passphrase adds a huge chunk of code to the user's trusted computing
-base.  Because of this concern, Emacs doesn't enable this by default,
-unless the @code{allow-emacs-pinentry} option is explicitly set in his
-or her @code{.gnupg/gpg-agent.conf} file.
-
-Similar to the inside-emacs check, the @pinentry{} frontends check
-whether the @code{DISPLAY} variable is set and a working X server is
-available.  If this is not the case, then they fallback to the curses
-front end.  This can also be disabled by passing
-@code{--disable-fallback-curses} to @code{configure} at build time.
+The @pinentry{} frontends check whether the @code{DISPLAY} variable is
+set and a working X server is available.  If this is not the case,
+then they fallback to the curses front end.  This can also be disabled
+by passing @code{--disable-fallback-curses} to @code{configure} at
+build time.
 
 @c
 @c  Assuan Protocol
